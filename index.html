@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Farcaster Bot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      width: 100%;
+      background: #0070f3;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📈 Base Memecoin Price Checker</h1>
+    <input type="text" id="tokenInput" placeholder="Enter token name or contract address" />
+    <button onclick="fetchPrice()">Check Price</button>
+    <div id="result"></div>
+  </div>
+  <script>
+    async function fetchPrice() {
+      const query = document.getElementById("tokenInput").value.trim().toLowerCase();
+      const resultDiv = document.getElementById("result");
+
+      if (!query) {
+        resultDiv.innerHTML = "Please enter a token name or address.";
+        return;
+      }
+
+      resultDiv.innerHTML = "Loading...";
+
+      try {
+        const res = await fetch("https://api.dexscreener.com/latest/dex/search?q=" + encodeURIComponent(query));
+        const data = await res.json();
+
+        const baseToken = data.pairs.find(pair => pair.chainId === "base");
+
+        if (!baseToken) {
+          resultDiv.innerHTML = "Token not found on Base chain.";
+          return;
+        }
+
+        resultDiv.innerHTML = `
+          <h3>${baseToken.baseToken.name} (${baseToken.baseToken.symbol})</h3>
+          <p>💰 Price: $${parseFloat(baseToken.priceUsd).toFixed(6)}</p>
+          <p>📉 24h Change: ${baseToken.priceChange.h24}%</p>
+          <p>🔗 <a href="${baseToken.url}" target="_blank">View on DexScreener</a></p>
+        `;
+      } catch (error) {
+        resultDiv.innerHTML = "Failed to fetch price. Please try again.";
+      }
+    }
+  </script>
+</body>
+</html>
