@@ -1,9 +1,6 @@
 {
   "version": 2,
   "rewrites": [
-    {
-      "source": "/api/price",
-      "destination": "/api/price.js"
-    }
+    { "source": "/api", "destination": "/api/index.js" }
   ]
 }
